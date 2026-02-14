@@ -5,6 +5,7 @@ const { TuyaContext } = require('@tuya/tuya-connector-nodejs');
 const app = express();
 app.use(express.json());
 
+// --- RECUPERATION DES CLES ---
 const TUYA_ID = process.env.TUYA_ID;
 const TUYA_SECRET = process.env.TUYA_SECRET;
 const TUYA_REGION = process.env.TUYA_REGION || 'eu';
@@ -20,6 +21,12 @@ const getTuyaContext = () => {
 
 const router = express.Router();
 
+// Route de test simple (pour vérifier que ça marche)
+router.get('/', (req, res) => {
+  res.json({ message: "L'API fonctionne !" });
+});
+
+// Route Statut
 router.get('/status', async (req, res) => {
   try {
     const tuya = getTuyaContext();
@@ -29,11 +36,12 @@ router.get('/status', async (req, res) => {
     });
     res.json(data);
   } catch (error) {
-    console.error(error);
+    console.error("Erreur Tuya Status:", error);
     res.status(500).json({ error: 'Erreur Tuya', details: error.message });
   }
 });
 
+// Route Commande
 router.post('/command', async (req, res) => {
   const { code, value } = req.body;
   try {
@@ -47,13 +55,15 @@ router.post('/command', async (req, res) => {
     });
     res.json(data);
   } catch (error) {
-    console.error(error);
+    console.error("Erreur Tuya Command:", error);
     res.status(500).json({ error: 'Erreur commande', details: error.message });
   }
 });
 
-// --- C'EST ICI QUE CA CHANGE ---
-// On dit à l'application d'écouter sur le chemin complet utilisé par Netlify
-app.use('/.netlify/functions/api', router); 
+// --- LA SOLUTION BAZOOKA ---
+// On attache le routeur à toutes les adresses possibles pour être sûr qu'Express le trouve
+app.use('/', router);
+app.use('/api', router);
+app.use('/.netlify/functions/api', router);
 
 module.exports.handler = serverless(app);
