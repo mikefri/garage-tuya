@@ -5,13 +5,11 @@ const { TuyaContext } = require('@tuya/tuya-connector-nodejs');
 const app = express();
 app.use(express.json());
 
-// Récupération des secrets depuis les variables Netlify
 const TUYA_ID = process.env.TUYA_ID;
 const TUYA_SECRET = process.env.TUYA_SECRET;
 const TUYA_REGION = process.env.TUYA_REGION || 'eu';
 const DEVICE_ID = process.env.DEVICE_ID;
 
-// Initialisation context Tuya (à chaque appel car serverless)
 const getTuyaContext = () => {
   return new TuyaContext({
     baseUrl: `https://openapi.tuya${TUYA_REGION}.com`,
@@ -22,7 +20,6 @@ const getTuyaContext = () => {
 
 const router = express.Router();
 
-// Route Statut
 router.get('/status', async (req, res) => {
   try {
     const tuya = getTuyaContext();
@@ -37,7 +34,6 @@ router.get('/status', async (req, res) => {
   }
 });
 
-// Route Commande
 router.post('/command', async (req, res) => {
   const { code, value } = req.body;
   try {
@@ -56,7 +52,8 @@ router.post('/command', async (req, res) => {
   }
 });
 
-// Utilisation du routeur
-app.use('/', router);
+// --- C'EST ICI QUE CA CHANGE ---
+// On dit à l'application d'écouter sur le chemin complet utilisé par Netlify
+app.use('/.netlify/functions/api', router); 
 
 module.exports.handler = serverless(app);
