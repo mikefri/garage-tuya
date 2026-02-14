@@ -3,138 +3,704 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garage Manuel</title>
+    <title>Contrôle Garage - Interface Complète</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 340px; }
-        h1 { color: #333; margin-bottom: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 50px; font-weight: bold; margin-bottom: 30px; text-transform: uppercase; font-size: 0.9rem; }
-        .closed { background-color: #d1fae5; color: #065f46; } 
-        .open { background-color: #fee2e2; color: #991b1b; }   
-
-        /* Zone des boutons */
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        
-        .btn {
-            border: none; padding: 20px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.1s;
-            display: flex; flex-direction: column; align-items: center;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn span { font-size: 0.7rem; opacity: 0.8; font-weight: normal; margin-top: 5px; }
 
-        .btn-open { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
-        .btn-close { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
 
-        .loader { height: 4px; width: 100%; background: #e5e7eb; border-radius: 2px; overflow: hidden; margin-bottom: 20px; display: none; }
-        .loader-bar { height: 100%; width: 50%; background: #3b82f6; animation: slide 1s infinite ease-in-out; }
-        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+        /* En-tête */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+        }
 
-        .console-log { font-family: monospace; font-size: 0.75rem; color: #666; background: #eee; padding: 10px; border-radius: 5px; text-align: left; height: 60px; overflow-y: auto; margin-top: 20px; }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        /* Badge de statut principal */
+        .main-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 10px #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Corps de l'interface */
+        .body {
+            padding: 25px;
+        }
+
+        /* Niveau de batterie */
+        .battery-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .battery-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .battery-icon {
+            font-size: 2rem;
+        }
+
+        .battery-text h3 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+
+        .battery-percent {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .battery-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .battery-fill {
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Boutons de contrôle principaux */
+        .main-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .control-btn {
+            border: none;
+            padding: 25px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-open {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-open:hover {
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-close {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-close:hover {
+            box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-icon {
+            font-size: 2rem;
+        }
+
+        .btn-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Section informations */
+        .info-section {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-title {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .info-unit {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* Paramètres */
+        .settings-section {
+            margin-bottom: 20px;
+        }
+
+        .setting-item {
+            background: white;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .setting-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-icon {
+            font-size: 1.3rem;
+        }
+
+        .setting-text h4 {
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .setting-text p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* Toggle switch */
+        .toggle {
+            position: relative;
+            width: 54px;
+            height: 28px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background-color: #10b981;
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Slider pour door_time */
+        .slider-container {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+        }
+
+        /* État de la porte */
+        .door-state-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .state-none {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .state-unclosed {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .state-alarm {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Loader */
+        .loader {
+            height: 3px;
+            width: 100%;
+            background: #e2e8f0;
+            overflow: hidden;
+            display: none;
+            margin-top: 20px;
+            border-radius: 2px;
+        }
+
+        .loader-bar {
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            animation: loading 1s infinite ease-in-out;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+
+        /* Log console */
+        .console {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 15px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            height: 80px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .console-time {
+            color: #64748b;
+        }
+
+        .console-success {
+            color: #4ade80;
+        }
+
+        .console-error {
+            color: #f87171;
+        }
+
+        /* États spéciaux */
+        .power-off {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>Garage</h1>
-    <div id="statusBadge" class="status-badge closed">Chargement...</div>
-    
-    <div class="loader" id="loader"><div class="loader-bar"></div></div>
-
-    <div class="controls">
-        <!-- Bouton OUVRIR force l'envoi de 'open' -->
-        <button class="btn btn-open" onclick="sendAction('open')">
-            OUVRIR
-            <span>(Force Open)</span>
-        </button>
-
-        <!-- Bouton FERMER force l'envoi de 'close' -->
-        <button class="btn btn-close" onclick="sendAction('close')">
-            FERMER
-            <span>(Force Close)</span>
-        </button>
+<div class="container">
+    <!-- En-tête -->
+    <div class="header">
+        <h1>🏠 Contrôle Garage</h1>
+        <div class="main-status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="mainStatusText">Chargement...</span>
+        </div>
     </div>
 
-    <!-- Informations Capteurs -->
-    <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">État réel capteur: <strong id="contactVal">--</strong></div>
-    
-    <div class="console-log" id="debugLog">Prêt.</div>
+    <!-- Corps -->
+    <div class="body" id="mainBody">
+        
+        <!-- Batterie -->
+        <div class="battery-section">
+            <div class="battery-info">
+                <div class="battery-icon">🔋</div>
+                <div class="battery-text">
+                    <h3>Batterie</h3>
+                    <div class="battery-percent" id="batteryPercent">--</div>
+                </div>
+            </div>
+            <div class="battery-bar">
+                <div class="battery-fill" id="batteryFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Contrôles principaux -->
+        <div class="main-controls">
+            <button class="control-btn btn-open" onclick="sendCommand('door_control_1', 'open')">
+                <div class="btn-icon">⬆️</div>
+                <div>OUVRIR</div>
+                <div class="btn-label">Ouvre la porte</div>
+            </button>
+            <button class="control-btn btn-close" onclick="sendCommand('door_control_1', 'close')">
+                <div class="btn-icon">⬇️</div>
+                <div>FERMER</div>
+                <div class="btn-label">Ferme la porte</div>
+            </button>
+        </div>
+
+        <!-- Informations -->
+        <div class="info-section">
+            <div class="info-title">📊 Informations</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Temps d'ouverture</div>
+                    <div>
+                        <span class="info-value" id="doorTime">--</span>
+                        <span class="info-unit">sec</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Compteur</div>
+                    <div>
+                        <span class="info-value" id="countdown">--</span>
+                        <span class="info-unit">sec</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Alarme</div>
+                    <div>
+                        <span class="info-value" id="alarmCountdown">--</span>
+                        <span class="info-unit">sec</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">État porte</div>
+                    <div id="doorStateDisplay">
+                        <span class="door-state-badge state-none">Normal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paramètres -->
+        <div class="settings-section">
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-icon">🔌</div>
+                    <div class="setting-text">
+                        <h4>Alimentation</h4>
+                        <p>Activer/Désactiver le système</p>
+                    </div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="switchToggle" onchange="sendCommand('switch_1', this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-icon">🎤</div>
+                    <div class="setting-text">
+                        <h4>Contrôle vocal</h4>
+                        <p>Activer les commandes vocales</p>
+                    </div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="voiceToggle" onchange="sendCommand('voice_control_1', this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-label">
+                    <div class="setting-icon">⏱️</div>
+                    <div class="setting-text">
+                        <h4>Temps d'ouverture</h4>
+                        <p>Durée : <span id="doorTimeValue">60</span> secondes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-container" style="padding: 0 18px 15px 18px;">
+                <input type="range" min="10" max="120" value="60" class="slider" id="doorTimeSlider" 
+                       oninput="updateDoorTimeDisplay(this.value)"
+                       onchange="sendCommand('door_time_1', parseInt(this.value))">
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div class="loader" id="loader">
+            <div class="loader-bar"></div>
+        </div>
+
+        <!-- Console de debug -->
+        <div class="console" id="console">
+            <span class="console-time">[--:--:--]</span> Initialisation...
+        </div>
+    </div>
 </div>
 
 <script>
     const API_URL = '/api';
-    
-    // Fonction pour écrire dans la petite console en bas de page
-    function log(msg) {
-        const d = new Date();
-        const time = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
-        const el = document.getElementById('debugLog');
-        el.innerHTML = `[${time}] ${msg}<br>` + el.innerHTML;
+    let systemData = {};
+
+    // === LOGGING ===
+    function log(message, type = 'info') {
+        const now = new Date();
+        const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const console = document.getElementById('console');
+        
+        let className = '';
+        if (type === 'success') className = 'console-success';
+        if (type === 'error') className = 'console-error';
+        
+        console.innerHTML = `<span class="console-time">[${time}]</span> <span class="${className}">${message}</span><br>` + console.innerHTML;
     }
 
+    function pad(num) {
+        return num.toString().padStart(2, '0');
+    }
+
+    // === RÉCUPÉRATION DU STATUS ===
     async function fetchStatus() {
         try {
             const response = await fetch(`${API_URL}/status`);
             const json = await response.json();
             
             if (json.result) {
-                updateUI(json.result);
+                systemData = {};
+                json.result.forEach(item => {
+                    systemData[item.code] = item.value;
+                });
+                updateUI();
             }
         } catch (error) {
-            console.error(error);
+            log('Erreur connexion: ' + error.message, 'error');
         }
     }
 
-    function updateUI(data) {
-        // Code capteur aimant
-        const contactState = data.find(item => item.code === 'doorcontact_state');
+    // === MISE À JOUR DE L'INTERFACE ===
+    function updateUI() {
+        // Switch principal
+        const switchOn = systemData['switch_1'] === true;
+        document.getElementById('switchToggle').checked = switchOn;
+        document.getElementById('mainBody').classList.toggle('power-off', !switchOn);
+
+        // Statut principal (basé sur door_control_1)
+        const doorControl = systemData['door_control_1'];
+        const statusText = document.getElementById('mainStatusText');
+        const statusDot = document.getElementById('statusDot');
         
-        const badge = document.getElementById('statusBadge');
-        const debugVal = document.getElementById('contactVal');
-        
-        if (contactState) {
-            const val = contactState.value;
-            // true = aimant collé (fermé), false = aimant décollé (ouvert)
-            const isClosed = (val === true);
-            
-            badge.textContent = isClosed ? 'FERMÉ' : 'OUVERT';
-            badge.className = `status-badge ${isClosed ? 'closed' : 'open'}`;
-            debugVal.textContent = val.toString();
+        if (doorControl === 'open') {
+            statusText.textContent = 'OUVERT';
+            statusDot.style.background = '#f87171';
+            statusDot.style.boxShadow = '0 0 10px #f87171';
+        } else if (doorControl === 'close') {
+            statusText.textContent = 'FERMÉ';
+            statusDot.style.background = '#4ade80';
+            statusDot.style.boxShadow = '0 0 10px #4ade80';
+        } else {
+            statusText.textContent = 'INCONNU';
+            statusDot.style.background = '#94a3b8';
         }
+
+        // Batterie
+        const battery = systemData['battery_percentage'] || 0;
+        document.getElementById('batteryPercent').textContent = battery + '%';
+        document.getElementById('batteryFill').style.width = battery + '%';
+
+        // Compteurs
+        document.getElementById('doorTime').textContent = systemData['door_time_1'] || '--';
+        document.getElementById('countdown').textContent = systemData['countdown_1'] || '--';
+        document.getElementById('alarmCountdown').textContent = systemData['alarm_countdown_1'] || '--';
+
+        // État de la porte
+        const doorState = systemData['door_state_1'];
+        const stateDisplay = document.getElementById('doorStateDisplay');
+        let stateHTML = '';
+        
+        switch(doorState) {
+            case 'none':
+                stateHTML = '<span class="door-state-badge state-none">Normal</span>';
+                break;
+            case 'unclosed_time':
+                stateHTML = '<span class="door-state-badge state-unclosed">Ouverte longtemps</span>';
+                break;
+            case 'close_time_alarm':
+                stateHTML = '<span class="door-state-badge state-alarm">⚠️ Alarme</span>';
+                break;
+            default:
+                stateHTML = '<span class="door-state-badge state-none">--</span>';
+        }
+        stateDisplay.innerHTML = stateHTML;
+
+        // Contrôle vocal
+        document.getElementById('voiceToggle').checked = systemData['voice_control_1'] === true;
+
+        // Slider door_time
+        const doorTimeValue = systemData['door_time_1'] || 60;
+        document.getElementById('doorTimeSlider').value = doorTimeValue;
+        document.getElementById('doorTimeValue').textContent = doorTimeValue;
+
+        log('Interface mise à jour', 'success');
     }
 
-    // Fonction unique qui envoie exactement ce qu'on lui demande
-    async function sendAction(actionValue) {
-        document.getElementById('loader').style.display = 'block';
-        log(`Envoi de: door_control_1 = "${actionValue}"`);
+    // === ENVOI DE COMMANDES ===
+    async function sendCommand(code, value) {
+        const loader = document.getElementById('loader');
+        loader.style.display = 'block';
+        
+        log(`Envoi: ${code} = ${value}`, 'info');
 
         try {
             const response = await fetch(`${API_URL}/command`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    code: 'door_control_1',  // On utilise bien ton code Enum
-                    value: actionValue       // 'open' ou 'close'
-                })
+                body: JSON.stringify({ code, value })
             });
             
             const result = await response.json();
-            log(`Réponse: Success=${result.success}`);
-            console.log(result);
-
-            setTimeout(fetchStatus, 2000);
+            
+            if (result.success) {
+                log(`✓ Commande envoyée`, 'success');
+                setTimeout(fetchStatus, 1500);
+            } else {
+                log(`✗ Échec: ${result.message || 'Erreur inconnue'}`, 'error');
+            }
             
         } catch (error) {
-            log('Erreur: ' + error.message);
+            log(`✗ Erreur: ${error.message}`, 'error');
         } finally {
-            document.getElementById('loader').style.display = 'none';
+            loader.style.display = 'none';
         }
     }
 
-    // Actualisation
-    fetchStatus();
-    setInterval(fetchStatus, 4000);
+    // === MISE À JOUR DU SLIDER ===
+    function updateDoorTimeDisplay(value) {
+        document.getElementById('doorTimeValue').textContent = value;
+    }
 
+    // === INITIALISATION ===
+    fetchStatus();
+    setInterval(fetchStatus, 5000);
+    log('Système initialisé', 'success');
 </script>
+
 </body>
 </html>
