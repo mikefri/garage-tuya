@@ -9,17 +9,18 @@
         .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 320px; }
         h1 { color: #333; margin-bottom: 5px; }
         .status-badge { display: inline-block; padding: 5px 15px; border-radius: 50px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; }
-        .closed { background-color: #d1fae5; color: #065f46; } /* Vert */
-        .open { background-color: #fee2e2; color: #991b1b; }   /* Rouge */
+        .closed { background-color: #d1fae5; color: #065f46; } 
+        .open { background-color: #fee2e2; color: #991b1b; }   
         
         .btn-main {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none; border-radius: 50%; width: 150px; height: 150px; color: white;
             font-size: 1.2rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4); margin-bottom: 20px; outline: none;
-            display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px auto;
         }
         .btn-main:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(118, 75, 162, 0.4); }
+        .btn-label { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
         
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; font-size: 0.85rem; color: #666; background: #f8f9fa; padding: 15px; border-radius: 10px; }
         .info-item strong { display: block; color: #333; }
@@ -37,7 +38,7 @@
     <div class="loader" id="loader"></div>
 
     <button class="btn-main" onclick="toggleDoor()" id="actionBtn">
-        ACTIONNER
+        <span>ACTIONNER</span>
     </button>
 
     <div class="info-grid">
@@ -57,12 +58,12 @@
 </div>
 
 <script>
-    // Netlify gère la redirection api
     const API_URL = '/api';
     
-    // Variable pour se souvenir si c'est ouvert ou fermé
+    // Par défaut, on considère fermé pour éviter les accidents
     let isGarageClosed = true; 
 
+    // Récupération de l'état
     async function fetchStatus() {
         try {
             const response = await fetch(`${API_URL}/status`);
@@ -73,12 +74,12 @@
                 updateUI(json.result);
             }
         } catch (error) {
-            console.error("Erreur de connexion", error);
+            console.error("Erreur connexion:", error);
         }
     }
 
+    // Mise à jour de l'affichage
     function updateUI(data) {
-        // Récupération des données Tuya
         const contactState = data.find(item => item.code === 'doorcontact_state');
         const battery = data.find(item => item.code === 'battery_percentage');
         const doorState = data.find(item => item.code === 'door_state_1');
@@ -87,17 +88,20 @@
         const contactText = document.getElementById('contactState');
         const btn = document.getElementById('actionBtn');
         
-        // Logique État
+        // Logique de l'état (Code: doorcontact_state)
+        // true = Aimant collé = Porte Fermée
+        // false = Aimant décollé = Porte Ouverte
         if (contactState) {
-            // True = Contact Collé = Fermé
             isGarageClosed = (contactState.value === true);
             
             badge.textContent = isGarageClosed ? 'FERMÉ' : 'OUVERT';
             badge.className = `status-badge ${isGarageClosed ? 'closed' : 'open'}`;
             contactText.textContent = isGarageClosed ? 'Fermé' : 'Ouvert';
 
-            // Change le texte du bouton selon l'état
-            btn.textContent = isGarageClosed ? 'OUVRIR' : 'FERMER';
+            // Mise à jour du bouton
+            btn.innerHTML = isGarageClosed 
+                ? '<span>OUVRIR</span><span class="btn-label">La porte</span>' 
+                : '<span>FERMER</span><span class="btn-label">La porte</span>';
         }
 
         if (battery) {
@@ -109,16 +113,17 @@
         }
     }
 
+    // Fonction d'action (C'est ici que la magie opère)
     async function toggleDoor() {
         const loader = document.getElementById('loader');
         loader.style.display = 'block';
         
-        // LOGIQUE INTELLIGENTE :
-        // Si c'est fermé, on envoie 'open'. Sinon on envoie 'close'.
-        // On utilise le code 'door_control_1' qui est plus fiable pour les garages.
-        const commandValue = isGarageClosed ? 'open' : 'close';
+        // --- LOGIQUE CRUCIALE ---
+        // Si fermé => on envoie "open"
+        // Si ouvert => on envoie "close"
+        const commandToSend = isGarageClosed ? 'open' : 'close';
 
-        console.log("Tentative d'action :", commandValue);
+        console.log(`Envoi de la commande: door_control_1 = ${commandToSend}`);
 
         try {
             const response = await fetch(`${API_URL}/command`, {
@@ -126,31 +131,25 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     code: 'door_control_1', 
-                    value: commandValue 
+                    value: commandToSend 
                 })
             });
             
             const result = await response.json();
-            console.log("Réponse serveur :", result);
+            console.log("Réponse Tuya:", result);
 
-            if (!result.success) {
-                console.warn("Le serveur Tuya a renvoyé une erreur ou false", result);
-            }
-            
-            // On attend un peu et on rafraichit
-            setTimeout(fetchStatus, 2000);
+            // Petit délai pour laisser le temps à l'aimant de bouger
+            setTimeout(fetchStatus, 3000);
             
         } catch (error) {
-            alert('Erreur lors de la commande (Vérifiez la console)');
-            console.error(error);
+            alert('Erreur: ' + error.message);
         } finally {
             loader.style.display = 'none';
         }
     }
 
-    // Premier chargement
+    // Démarrage
     fetchStatus();
-    // Rafraichissement automatique
     setInterval(fetchStatus, 5000);
 
 </script>
