@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garage Connecté</title>
+    <title>Garage Manuel</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 320px; }
+        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 340px; }
         h1 { color: #333; margin-bottom: 5px; }
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 50px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; }
+        
+        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 50px; font-weight: bold; margin-bottom: 30px; text-transform: uppercase; font-size: 0.9rem; }
         .closed { background-color: #d1fae5; color: #065f46; } 
         .open { background-color: #fee2e2; color: #991b1b; }   
+
+        /* Zone des boutons */
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
         
-        .btn-main {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none; border-radius: 50%; width: 150px; height: 150px; color: white;
-            font-size: 1.2rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4); margin-bottom: 20px; outline: none;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px auto;
+        .btn {
+            border: none; padding: 20px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.1s;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .btn-main:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(118, 75, 162, 0.4); }
-        .btn-label { font-size: 0.8rem; opacity: 0.8; margin-top: 5px; }
-        
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; font-size: 0.85rem; color: #666; background: #f8f9fa; padding: 15px; border-radius: 10px; }
-        .info-item strong { display: block; color: #333; }
-        
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 2s linear infinite; display: none; margin: 0 auto 10px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn:active { transform: scale(0.95); }
+        .btn span { font-size: 0.7rem; opacity: 0.8; font-weight: normal; margin-top: 5px; }
+
+        .btn-open { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+        .btn-close { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
+
+        .loader { height: 4px; width: 100%; background: #e5e7eb; border-radius: 2px; overflow: hidden; margin-bottom: 20px; display: none; }
+        .loader-bar { height: 100%; width: 50%; background: #3b82f6; animation: slide 1s infinite ease-in-out; }
+        @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+
+        .console-log { font-family: monospace; font-size: 0.75rem; color: #666; background: #eee; padding: 10px; border-radius: 5px; text-align: left; height: 60px; overflow-y: auto; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -35,122 +39,101 @@
     <h1>Garage</h1>
     <div id="statusBadge" class="status-badge closed">Chargement...</div>
     
-    <div class="loader" id="loader"></div>
+    <div class="loader" id="loader"><div class="loader-bar"></div></div>
 
-    <button class="btn-main" onclick="toggleDoor()" id="actionBtn">
-        <span>ACTIONNER</span>
-    </button>
+    <div class="controls">
+        <!-- Bouton OUVRIR force l'envoi de 'open' -->
+        <button class="btn btn-open" onclick="sendAction('open')">
+            OUVRIR
+            <span>(Force Open)</span>
+        </button>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>Batterie</strong>
-            <span id="batteryLevel">--</span>%
-        </div>
-        <div class="info-item">
-            <strong>Contacteur</strong>
-            <span id="contactState">--</span>
-        </div>
-        <div class="info-item">
-            <strong>Dernière Info</strong>
-            <span id="lastAction">--</span>
-        </div>
+        <!-- Bouton FERMER force l'envoi de 'close' -->
+        <button class="btn btn-close" onclick="sendAction('close')">
+            FERMER
+            <span>(Force Close)</span>
+        </button>
     </div>
+
+    <!-- Informations Capteurs -->
+    <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">État réel capteur: <strong id="contactVal">--</strong></div>
+    
+    <div class="console-log" id="debugLog">Prêt.</div>
 </div>
 
 <script>
     const API_URL = '/api';
     
-    // Par défaut, on considère fermé pour éviter les accidents
-    let isGarageClosed = true; 
+    // Fonction pour écrire dans la petite console en bas de page
+    function log(msg) {
+        const d = new Date();
+        const time = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        const el = document.getElementById('debugLog');
+        el.innerHTML = `[${time}] ${msg}<br>` + el.innerHTML;
+    }
 
-    // Récupération de l'état
     async function fetchStatus() {
         try {
             const response = await fetch(`${API_URL}/status`);
-            if (!response.ok) throw new Error('Erreur réseau');
             const json = await response.json();
             
             if (json.result) {
                 updateUI(json.result);
             }
         } catch (error) {
-            console.error("Erreur connexion:", error);
+            console.error(error);
         }
     }
 
-    // Mise à jour de l'affichage
     function updateUI(data) {
+        // Code capteur aimant
         const contactState = data.find(item => item.code === 'doorcontact_state');
-        const battery = data.find(item => item.code === 'battery_percentage');
-        const doorState = data.find(item => item.code === 'door_state_1');
-
-        const badge = document.getElementById('statusBadge');
-        const contactText = document.getElementById('contactState');
-        const btn = document.getElementById('actionBtn');
         
-        // Logique de l'état (Code: doorcontact_state)
-        // true = Aimant collé = Porte Fermée
-        // false = Aimant décollé = Porte Ouverte
+        const badge = document.getElementById('statusBadge');
+        const debugVal = document.getElementById('contactVal');
+        
         if (contactState) {
-            isGarageClosed = (contactState.value === true);
+            const val = contactState.value;
+            // true = aimant collé (fermé), false = aimant décollé (ouvert)
+            const isClosed = (val === true);
             
-            badge.textContent = isGarageClosed ? 'FERMÉ' : 'OUVERT';
-            badge.className = `status-badge ${isGarageClosed ? 'closed' : 'open'}`;
-            contactText.textContent = isGarageClosed ? 'Fermé' : 'Ouvert';
-
-            // Mise à jour du bouton
-            btn.innerHTML = isGarageClosed 
-                ? '<span>OUVRIR</span><span class="btn-label">La porte</span>' 
-                : '<span>FERMER</span><span class="btn-label">La porte</span>';
-        }
-
-        if (battery) {
-            document.getElementById('batteryLevel').textContent = battery.value;
-        }
-
-        if (doorState) {
-            document.getElementById('lastAction').textContent = doorState.value;
+            badge.textContent = isClosed ? 'FERMÉ' : 'OUVERT';
+            badge.className = `status-badge ${isClosed ? 'closed' : 'open'}`;
+            debugVal.textContent = val.toString();
         }
     }
 
-    // Fonction d'action (C'est ici que la magie opère)
-    async function toggleDoor() {
-        const loader = document.getElementById('loader');
-        loader.style.display = 'block';
-        
-        // --- LOGIQUE CRUCIALE ---
-        // Si fermé => on envoie "open"
-        // Si ouvert => on envoie "close"
-        const commandToSend = isGarageClosed ? 'open' : 'close';
-
-        console.log(`Envoi de la commande: door_control_1 = ${commandToSend}`);
+    // Fonction unique qui envoie exactement ce qu'on lui demande
+    async function sendAction(actionValue) {
+        document.getElementById('loader').style.display = 'block';
+        log(`Envoi de: door_control_1 = "${actionValue}"`);
 
         try {
             const response = await fetch(`${API_URL}/command`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    code: 'door_control_1', 
-                    value: commandToSend 
+                    code: 'door_control_1',  // On utilise bien ton code Enum
+                    value: actionValue       // 'open' ou 'close'
                 })
             });
             
             const result = await response.json();
-            console.log("Réponse Tuya:", result);
+            log(`Réponse: Success=${result.success}`);
+            console.log(result);
 
-            // Petit délai pour laisser le temps à l'aimant de bouger
-            setTimeout(fetchStatus, 3000);
+            setTimeout(fetchStatus, 2000);
             
         } catch (error) {
-            alert('Erreur: ' + error.message);
+            log('Erreur: ' + error.message);
         } finally {
-            loader.style.display = 'none';
+            document.getElementById('loader').style.display = 'none';
         }
     }
 
-    // Démarrage
+    // Actualisation
     fetchStatus();
-    setInterval(fetchStatus, 5000);
+    setInterval(fetchStatus, 4000);
 
 </script>
 </body>
