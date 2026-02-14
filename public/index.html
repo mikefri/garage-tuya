@@ -413,12 +413,6 @@
         .console-error {
             color: #f87171;
         }
-
-        /* États spéciaux */
-        .power-off {
-            opacity: 0.5;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -502,20 +496,6 @@
         <div class="settings-section">
             <div class="setting-item">
                 <div class="setting-label">
-                    <div class="setting-icon">🔌</div>
-                    <div class="setting-text">
-                        <h4>Alimentation</h4>
-                        <p>Activer/Désactiver le système</p>
-                    </div>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="switchToggle" onchange="sendCommand('switch_1', this.checked)">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-label">
                     <div class="setting-icon">🎤</div>
                     <div class="setting-text">
                         <h4>Contrôle vocal</h4>
@@ -597,11 +577,6 @@
 
     // === MISE À JOUR DE L'INTERFACE ===
     function updateUI() {
-        // Switch principal
-        const switchOn = systemData['switch_1'] === true;
-        document.getElementById('switchToggle').checked = switchOn;
-        document.getElementById('mainBody').classList.toggle('power-off', !switchOn);
-
         // Statut principal (basé sur door_control_1)
         const doorControl = systemData['door_control_1'];
         const statusText = document.getElementById('mainStatusText');
