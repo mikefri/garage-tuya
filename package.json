@@ -2,7 +2,7 @@
   "name": "garage-tuya-netlify",
   "version": "1.0.0",
   "dependencies": {
-    "@tuya/tuya-connector-nodejs": "^1.1.7",
+    "@tuya/tuya-connector-nodejs": "*",
     "express": "^4.19.2",
     "serverless-http": "^3.2.0"
   }
