@@ -386,49 +386,6 @@
     }
 
     function updateUI() {
-        const doorControl = systemData['door_control_1'];
-        const statusText  = document.getElementById('mainStatusText');
-        const statusDot   = document.getElementById('statusDot');
-
-        if (doorControl === 'open') {
-            statusText.textContent = 'OUVERT';
-            statusDot.style.background = '#f87171';
-            statusDot.style.boxShadow  = '0 0 10px #f87171';
-        } else if (doorControl === 'close') {
-            statusText.textContent = 'FERMÉ';
-            statusDot.style.background = '#4ade80';
-            statusDot.style.boxShadow  = '0 0 10px #4ade80';
-        } else {
-            statusText.textContent = 'INCONNU';
-            statusDot.style.background = '#94a3b8';
-            statusDot.style.boxShadow  = 'none';
-        }
-
-        const battery = systemData['battery_percentage'] || 0;
-        document.getElementById('batteryPercent').textContent = battery + '%';
-        document.getElementById('batteryFill').style.width = battery + '%';
-
-        document.getElementById('doorTime').textContent      = systemData['door_time_1']      ?? '--';
-        document.getElementById('countdown').textContent     = systemData['countdown_1']      ?? '--';
-        document.getElementById('alarmCountdown').textContent = systemData['alarm_countdown_1'] ?? '--';
-
-        const doorState   = systemData['door_state_1'];
-        const stateDisplay = document.getElementById('doorStateDisplay');
-        let stateHTML = '';
-        switch (doorState) {
-            case 'none':
-                stateHTML = '<span class="door-state-badge state-none">Normal</span>'; break;
-            case 'unclosed_time':
-                stateHTML = '<span class="door-state-badge state-unclosed">Ouverte longtemps</span>'; break;
-            case 'close_time_alarm':
-                stateHTML = '<span class="door-state-badge state-alarm">⚠️ Alarme</span>'; break;
-            default:
-                stateHTML = '<span class="door-state-badge state-none">--</span>';
-        }
-        stateDisplay.innerHTML = stateHTML;
-
-        document.getElementById('voiceToggle').checked = systemData['voice_control_1'] === true;
-
         const doorTimeValue = systemData['door_time_1'] || 60;
         document.getElementById('doorTimeSlider').value = doorTimeValue;
         document.getElementById('doorTimeValue').textContent = doorTimeValue;
