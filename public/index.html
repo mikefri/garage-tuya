@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrôle Garage - Interface Complète</title>
+    <title>Contrôle Garage</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -26,7 +26,6 @@
             overflow: hidden;
         }
 
-        /* En-tête */
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
@@ -40,7 +39,6 @@
             font-weight: 600;
         }
 
-        /* Badge de statut principal */
         .main-status {
             display: inline-flex;
             align-items: center;
@@ -67,12 +65,8 @@
             50% { opacity: 0.5; }
         }
 
-        /* Corps de l'interface */
-        .body {
-            padding: 25px;
-        }
+        .body { padding: 25px; }
 
-        /* Niveau de batterie */
         .battery-section {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 20px;
@@ -84,15 +78,8 @@
             align-items: center;
         }
 
-        .battery-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .battery-icon {
-            font-size: 2rem;
-        }
+        .battery-info { display: flex; align-items: center; gap: 12px; }
+        .battery-icon { font-size: 2rem; }
 
         .battery-text h3 {
             font-size: 0.85rem;
@@ -101,10 +88,7 @@
             margin-bottom: 3px;
         }
 
-        .battery-percent {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
+        .battery-percent { font-size: 1.8rem; font-weight: 700; }
 
         .battery-bar {
             width: 100px;
@@ -121,7 +105,6 @@
             transition: width 0.5s ease;
         }
 
-        /* Boutons de contrôle principaux */
         .main-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,37 +128,15 @@
             gap: 8px;
         }
 
-        .control-btn:active {
-            transform: scale(0.95);
-        }
+        .control-btn:active { transform: scale(0.95); }
 
-        .btn-open {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
+        .btn-open { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-open:hover { box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4); }
+        .btn-close { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-close:hover { box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4); }
+        .btn-icon { font-size: 2rem; }
+        .btn-label { font-size: 0.75rem; opacity: 0.9; font-weight: 500; }
 
-        .btn-open:hover {
-            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-close {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .btn-close:hover {
-            box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-icon {
-            font-size: 2rem;
-        }
-
-        .btn-label {
-            font-size: 0.75rem;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-
-        /* Section informations */
         .info-section {
             background: #f8fafc;
             border-radius: 20px;
@@ -192,11 +153,7 @@
             letter-spacing: 0.5px;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
         .info-item {
             background: white;
@@ -205,28 +162,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .info-label {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-bottom: 5px;
-        }
+        .info-label { font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; }
+        .info-value { font-size: 1.3rem; font-weight: 700; color: #1e293b; }
+        .info-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; }
 
-        .info-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .info-unit {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #64748b;
-        }
-
-        /* Paramètres */
-        .settings-section {
-            margin-bottom: 20px;
-        }
+        .settings-section { margin-bottom: 20px; }
 
         .setting-item {
             background: white;
@@ -239,47 +179,18 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .setting-label {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .setting-label { display: flex; align-items: center; gap: 12px; }
+        .setting-icon { font-size: 1.3rem; }
+        .setting-text h4 { font-size: 0.95rem; color: #1e293b; margin-bottom: 2px; }
+        .setting-text p { font-size: 0.75rem; color: #94a3b8; }
 
-        .setting-icon {
-            font-size: 1.3rem;
-        }
-
-        .setting-text h4 {
-            font-size: 0.95rem;
-            color: #1e293b;
-            margin-bottom: 2px;
-        }
-
-        .setting-text p {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-
-        /* Toggle switch */
-        .toggle {
-            position: relative;
-            width: 54px;
-            height: 28px;
-        }
-
-        .toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle { position: relative; width: 54px; height: 28px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
 
         .toggle-slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #cbd5e1;
             transition: .4s;
             border-radius: 34px;
@@ -297,19 +208,10 @@
             border-radius: 50%;
         }
 
-        .toggle input:checked + .toggle-slider {
-            background-color: #10b981;
-        }
+        .toggle input:checked + .toggle-slider { background-color: #10b981; }
+        .toggle input:checked + .toggle-slider:before { transform: translateX(26px); }
 
-        .toggle input:checked + .toggle-slider:before {
-            transform: translateX(26px);
-        }
-
-        /* Slider pour door_time */
-        .slider-container {
-            width: 100%;
-            margin-top: 10px;
-        }
+        .slider-container { width: 100%; margin-top: 10px; }
 
         .slider {
             -webkit-appearance: none;
@@ -322,13 +224,12 @@
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
             background: #3b82f6;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 2px 6px rgba(59,130,246,0.4);
         }
 
         .slider::-moz-range-thumb {
@@ -338,10 +239,9 @@
             background: #3b82f6;
             cursor: pointer;
             border: none;
-            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 2px 6px rgba(59,130,246,0.4);
         }
 
-        /* État de la porte */
         .door-state-badge {
             display: inline-block;
             padding: 6px 14px;
@@ -351,22 +251,10 @@
             text-transform: uppercase;
         }
 
-        .state-none {
-            background: #dbeafe;
-            color: #1e40af;
-        }
+        .state-none { background: #dbeafe; color: #1e40af; }
+        .state-unclosed { background: #fef3c7; color: #92400e; }
+        .state-alarm { background: #fee2e2; color: #991b1b; }
 
-        .state-unclosed {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .state-alarm {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Loader */
         .loader {
             height: 3px;
             width: 100%;
@@ -389,7 +277,6 @@
             100% { transform: translateX(200%); }
         }
 
-        /* Log console */
         .console {
             background: #1e293b;
             color: #94a3b8;
@@ -402,23 +289,14 @@
             line-height: 1.5;
         }
 
-        .console-time {
-            color: #64748b;
-        }
-
-        .console-success {
-            color: #4ade80;
-        }
-
-        .console-error {
-            color: #f87171;
-        }
+        .console-time { color: #64748b; }
+        .console-success { color: #4ade80; }
+        .console-error { color: #f87171; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- En-tête -->
     <div class="header">
         <h1>🏠 Contrôle Garage</h1>
         <div class="main-status">
@@ -427,10 +305,8 @@
         </div>
     </div>
 
-    <!-- Corps -->
     <div class="body" id="mainBody">
         
-        <!-- Batterie -->
         <div class="battery-section">
             <div class="battery-info">
                 <div class="battery-icon">🔋</div>
@@ -444,7 +320,6 @@
             </div>
         </div>
 
-        <!-- Contrôles principaux -->
         <div class="main-controls">
             <button class="control-btn btn-open" onclick="sendCommand('door_control_1', 'open')">
                 <div class="btn-icon">⬆️</div>
@@ -458,7 +333,6 @@
             </button>
         </div>
 
-        <!-- Informations -->
         <div class="info-section">
             <div class="info-title">📊 Informations</div>
             <div class="info-grid">
@@ -492,7 +366,6 @@
             </div>
         </div>
 
-        <!-- Paramètres -->
         <div class="settings-section">
             <div class="setting-item">
                 <div class="setting-label">
@@ -518,18 +391,16 @@
                 </div>
             </div>
             <div class="slider-container" style="padding: 0 18px 15px 18px;">
-                <input type="range" min="10" max="120" value="60" class="slider" id="doorTimeSlider" 
+                <input type="range" min="10" max="120" value="60" class="slider" id="doorTimeSlider"
                        oninput="updateDoorTimeDisplay(this.value)"
                        onchange="sendCommand('door_time_1', parseInt(this.value))">
             </div>
         </div>
 
-        <!-- Loader -->
         <div class="loader" id="loader">
             <div class="loader-bar"></div>
         </div>
 
-        <!-- Console de debug -->
         <div class="console" id="console">
             <span class="console-time">[--:--:--]</span> Initialisation...
         </div>
@@ -537,98 +408,84 @@
 </div>
 
 <script>
-    const API_URL = '/api';
+    // Sur Vercel, les routes API sont directement /api/status et /api/command
+    const API_STATUS  = '/api/status';
+    const API_COMMAND = '/api/command';
+
     let systemData = {};
 
-    // === LOGGING ===
     function log(message, type = 'info') {
         const now = new Date();
         const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        const console = document.getElementById('console');
-        
+        const consoleEl = document.getElementById('console');
         let className = '';
         if (type === 'success') className = 'console-success';
-        if (type === 'error') className = 'console-error';
-        
-        console.innerHTML = `<span class="console-time">[${time}]</span> <span class="${className}">${message}</span><br>` + console.innerHTML;
+        if (type === 'error')   className = 'console-error';
+        consoleEl.innerHTML = `<span class="console-time">[${time}]</span> <span class="${className}">${message}</span><br>` + consoleEl.innerHTML;
     }
 
-    function pad(num) {
-        return num.toString().padStart(2, '0');
-    }
+    function pad(num) { return num.toString().padStart(2, '0'); }
 
-    // === RÉCUPÉRATION DU STATUS ===
     async function fetchStatus() {
         try {
-            const response = await fetch(`${API_URL}/status`);
+            const response = await fetch(API_STATUS);
             const json = await response.json();
-            
             if (json.result) {
                 systemData = {};
-                json.result.forEach(item => {
-                    systemData[item.code] = item.value;
-                });
+                json.result.forEach(item => { systemData[item.code] = item.value; });
                 updateUI();
+            } else {
+                log('Réponse inattendue: ' + JSON.stringify(json), 'error');
             }
         } catch (error) {
             log('Erreur connexion: ' + error.message, 'error');
         }
     }
 
-    // === MISE À JOUR DE L'INTERFACE ===
     function updateUI() {
-        // Statut principal (basé sur door_control_1)
         const doorControl = systemData['door_control_1'];
-        const statusText = document.getElementById('mainStatusText');
-        const statusDot = document.getElementById('statusDot');
-        
+        const statusText  = document.getElementById('mainStatusText');
+        const statusDot   = document.getElementById('statusDot');
+
         if (doorControl === 'open') {
             statusText.textContent = 'OUVERT';
             statusDot.style.background = '#f87171';
-            statusDot.style.boxShadow = '0 0 10px #f87171';
+            statusDot.style.boxShadow  = '0 0 10px #f87171';
         } else if (doorControl === 'close') {
             statusText.textContent = 'FERMÉ';
             statusDot.style.background = '#4ade80';
-            statusDot.style.boxShadow = '0 0 10px #4ade80';
+            statusDot.style.boxShadow  = '0 0 10px #4ade80';
         } else {
             statusText.textContent = 'INCONNU';
             statusDot.style.background = '#94a3b8';
+            statusDot.style.boxShadow  = 'none';
         }
 
-        // Batterie
         const battery = systemData['battery_percentage'] || 0;
         document.getElementById('batteryPercent').textContent = battery + '%';
         document.getElementById('batteryFill').style.width = battery + '%';
 
-        // Compteurs
-        document.getElementById('doorTime').textContent = systemData['door_time_1'] || '--';
-        document.getElementById('countdown').textContent = systemData['countdown_1'] || '--';
-        document.getElementById('alarmCountdown').textContent = systemData['alarm_countdown_1'] || '--';
+        document.getElementById('doorTime').textContent      = systemData['door_time_1']      ?? '--';
+        document.getElementById('countdown').textContent     = systemData['countdown_1']      ?? '--';
+        document.getElementById('alarmCountdown').textContent = systemData['alarm_countdown_1'] ?? '--';
 
-        // État de la porte
-        const doorState = systemData['door_state_1'];
+        const doorState   = systemData['door_state_1'];
         const stateDisplay = document.getElementById('doorStateDisplay');
         let stateHTML = '';
-        
-        switch(doorState) {
+        switch (doorState) {
             case 'none':
-                stateHTML = '<span class="door-state-badge state-none">Normal</span>';
-                break;
+                stateHTML = '<span class="door-state-badge state-none">Normal</span>'; break;
             case 'unclosed_time':
-                stateHTML = '<span class="door-state-badge state-unclosed">Ouverte longtemps</span>';
-                break;
+                stateHTML = '<span class="door-state-badge state-unclosed">Ouverte longtemps</span>'; break;
             case 'close_time_alarm':
-                stateHTML = '<span class="door-state-badge state-alarm">⚠️ Alarme</span>';
-                break;
+                stateHTML = '<span class="door-state-badge state-alarm">⚠️ Alarme</span>'; break;
             default:
                 stateHTML = '<span class="door-state-badge state-none">--</span>';
         }
         stateDisplay.innerHTML = stateHTML;
 
-        // Contrôle vocal
         document.getElementById('voiceToggle').checked = systemData['voice_control_1'] === true;
 
-        // Slider door_time
         const doorTimeValue = systemData['door_time_1'] || 60;
         document.getElementById('doorTimeSlider').value = doorTimeValue;
         document.getElementById('doorTimeValue').textContent = doorTimeValue;
@@ -636,42 +493,36 @@
         log('Interface mise à jour', 'success');
     }
 
-    // === ENVOI DE COMMANDES ===
     async function sendCommand(code, value) {
         const loader = document.getElementById('loader');
         loader.style.display = 'block';
-        
-        log(`Envoi: ${code} = ${value}`, 'info');
+        log(`Envoi: ${code} = ${value}`);
 
         try {
-            const response = await fetch(`${API_URL}/command`, {
+            const response = await fetch(API_COMMAND, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code, value })
             });
-            
             const result = await response.json();
-            
+
             if (result.success) {
-                log(`✓ Commande envoyée`, 'success');
+                log('✓ Commande envoyée', 'success');
                 setTimeout(fetchStatus, 1500);
             } else {
-                log(`✗ Échec: ${result.message || 'Erreur inconnue'}`, 'error');
+                log('✗ Échec: ' + (result.message || result.error || 'Erreur inconnue'), 'error');
             }
-            
         } catch (error) {
-            log(`✗ Erreur: ${error.message}`, 'error');
+            log('✗ Erreur: ' + error.message, 'error');
         } finally {
             loader.style.display = 'none';
         }
     }
 
-    // === MISE À JOUR DU SLIDER ===
     function updateDoorTimeDisplay(value) {
         document.getElementById('doorTimeValue').textContent = value;
     }
 
-    // === INITIALISATION ===
     fetchStatus();
     setInterval(fetchStatus, 5000);
     log('Système initialisé', 'success');
